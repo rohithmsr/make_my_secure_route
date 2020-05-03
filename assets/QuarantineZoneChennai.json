@@ -1,0 +1,109 @@
+{
+  "Zone" : {
+    "Adyar" : {
+      "latitude" : 13.001177787780762,
+      "longitude" : 80.2564926147461,
+      "priority" : 2,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Adyar"
+    },
+    "Alandur" : {
+      "latitude" : 12.99748706817627,
+      "longitude" : 80.20063781738281,
+      "priority" : 2,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Alandur"
+    },
+    "Ambattur" : {
+      "latitude" : 13.114338874816895,
+      "longitude" : 80.15478515625,
+      "priority" : 3,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Ambattur"
+    },
+    "Anna Nagar" : {
+      "latitude" : 13.084956169128418,
+      "longitude" : 80.21013641357422,
+      "priority" : 1,
+      "radiusInMeters" : 2000,
+      "zoneName" : "Anna Nagar"
+    },
+    "Kodambakkam" : {
+      "latitude" : 13.052102088928223,
+      "longitude" : 80.22552490234375,
+      "priority" : 1,
+      "radiusInMeters" : 2000,
+      "zoneName" : "Kodambakkam"
+    },
+    "Madhavaram" : {
+      "latitude" : 13.148789405822754,
+      "longitude" : 80.23056030273438,
+      "priority" : 3,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Madhavaram"
+    },
+    "Manali, Chennai" : {
+      "latitude" : 13.177928924560547,
+      "longitude" : 80.27007293701172,
+      "priority" : 3,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Manali, Chennai"
+    },
+    "Perungudi" : {
+      "latitude" : 12.965365409851074,
+      "longitude" : 80.24610900878906,
+      "priority" : 2,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Perungudi"
+    },
+    "Royapuram" : {
+      "latitude" : 13.113700866699219,
+      "longitude" : 80.29541015625,
+      "priority" : 1,
+      "radiusInMeters" : 1500,
+      "zoneName" : "Royapuram"
+    },
+    "Sholinganallur" : {
+      "latitude" : 12.90098762512207,
+      "longitude" : 80.2279281616211,
+      "priority" : 3,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Sholinganallur"
+    },
+    "Teynampet" : {
+      "latitude" : 13.040473937988281,
+      "longitude" : 80.25033569335938,
+      "priority" : 1,
+      "radiusInMeters" : 2000,
+      "zoneName" : "Teynampet"
+    },
+    "Tiru Vi Ka Nagar" : {
+      "latitude" : 13.119937896728516,
+      "longitude" : 80.23422241210938,
+      "priority" : 1,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Tiru Vi Ka Nagar"
+    },
+    "Tiruvottiyur" : {
+      "latitude" : 13.164259910583496,
+      "longitude" : 80.30014038085938,
+      "priority" : 2,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Tiruvottiyur"
+    },
+    "Tondiarpet" : {
+      "latitude" : 13.1317998,
+      "longitude" : 80.274725,
+      "priority" : 1,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Tondiarpet"
+    },
+    "Valasaravakkam" : {
+      "latitude" : 13.04027271270752,
+      "longitude" : 80.17229461669922,
+      "priority" : 2,
+      "radiusInMeters" : 1000,
+      "zoneName" : "Valasaravakkam"
+    }
+  }
+}
