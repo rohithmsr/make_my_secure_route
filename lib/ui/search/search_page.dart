@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
 import 'package:latlong/latlong.dart';
 import 'dart:math';
 //import 'package:geolocator/geolocator.dart';
@@ -46,6 +47,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final _textController1 = TextEditingController();
+
   final _textController2 = TextEditingController();
 
   @override
@@ -83,24 +85,34 @@ class _SearchPageState extends State<SearchPage> {
                     spreadRadius: 3)
               ],
             ),
-            child: TextField(
-              cursorColor: Colors.black,
-              controller: _textController1,
-              decoration: InputDecoration(
-                icon: Container(
-                  margin: EdgeInsets.only(left: 12.0, bottom: 6),
-                  width: 10,
-                  height: 10,
-                  child: IconButton(
-                    icon: Icon(Icons.my_location),
-                    color: Colors.deepPurple,
-                    onPressed: () {},
-                  ),
-                ),
-                hintText: "From",
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(left: 15.0, top: 16.0),
+            child: CustomTextField(
+              textController: _textController1,
+              hintText: "From",
+              prefixIcon: Icon(
+                Icons.my_location,
+                color: Colors.deepPurple,
               ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MapBoxAutoCompleteWidget(
+                      apiKey:
+                          "pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg",
+                      hint: "From",
+                      onSelect: (place) {
+                        //String src = place.placeName.substring(0, 15);
+                        String src = place.placeName;
+                        print(src);
+                        List k = src.split(',');
+                        _textController1.text = k[0];
+                        Navigator.pop(context);
+                      },
+                      limit: 10,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ),
@@ -109,39 +121,47 @@ class _SearchPageState extends State<SearchPage> {
           right: 15.0,
           left: 15.0,
           child: Container(
-            height: 50.0,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(3.0),
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.grey,
-                    offset: Offset(1.0, 5.0),
-                    blurRadius: 10,
-                    spreadRadius: 3)
-              ],
-            ),
-            child: TextField(
-              cursorColor: Colors.black,
-              controller: _textController2,
-              textInputAction: TextInputAction.go,
-              decoration: InputDecoration(
-                icon: Container(
-                  margin: EdgeInsets.only(left: 20, top: 5),
-                  width: 10,
-                  height: 10,
-                  child: Icon(
-                    Icons.local_taxi,
-                    color: Colors.deepPurple,
-                  ),
-                ),
-                hintText: "To",
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.only(left: 15.0, top: 16.0),
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(3.0),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.grey,
+                      offset: Offset(1.0, 5.0),
+                      blurRadius: 10,
+                      spreadRadius: 3)
+                ],
               ),
-            ),
-          ),
+              child: CustomTextField(
+                textController: _textController2,
+                hintText: "To",
+                prefixIcon: Icon(
+                  Icons.local_taxi,
+                  color: Colors.deepPurple,
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MapBoxAutoCompleteWidget(
+                        apiKey:
+                            "pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg",
+                        hint: "To",
+                        onSelect: (place) {
+                          String destination = place.placeName;
+                          print(destination);
+                          List k = destination.split(',');
+                          _textController2.text = k[0];
+                          Navigator.pop(context);
+                        },
+                        limit: 10,
+                      ),
+                    ),
+                  );
+                },
+              )),
         ),
         SizedBox(height: 30),
         Positioned(
@@ -432,87 +452,6 @@ class _NextPageState extends State<NextPage> {
       showAlertDialog(context);
     }
   } //geocodes the input source and destination,gets the route if error,shows a dialog box
-
-  setMarkers() {
-    return allMarkers;
-  } //not necessary for now
-
-  Future addMarker() async {
-    await showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return new SimpleDialog(
-            title: new Text(
-              'Add marker',
-              style: new TextStyle(fontSize: 17.0),
-            ),
-            children: <Widget>[
-              new SimpleDialogOption(
-                child: new Text('Add markers for the 2 locations',
-                    style: new TextStyle(color: Colors.blue)),
-                onPressed: () {
-                  addToList();
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          );
-        });
-  } //not necessary for now
-
-  addToList() async {
-    final query = places[0];
-    var addresses = await Geocoder.local.findAddressesFromQuery(query);
-    var first = addresses.first;
-    //print("${first.featureName} : ${first.coordinates}");
-    final query1 = places[1];
-    var addresses1 = await Geocoder.local.findAddressesFromQuery(query1);
-    var first1 = addresses1.first;
-    //print("${first1.featureName} : ${first1.coordinates}");
-//    getRoute(
-//      LatLng(first.coordinates.latitude, first.coordinates.longitude),
-//      LatLng(first1.coordinates.latitude, first1.coordinates.longitude),
-//    );
-    setState(() {
-      allMarkers.add(
-        new Marker(
-          width: 45.0,
-          height: 45.0,
-          point: new LatLng(
-              first.coordinates.latitude, first.coordinates.longitude),
-          builder: (context) => new Container(
-            child: IconButton(
-              color: Colors.deepPurple,
-              icon: Icon(Icons.location_on),
-              iconSize: 45.0,
-              onPressed: () {
-                print(first.featureName);
-              },
-            ),
-          ),
-        ),
-      );
-      allMarkers.add(
-        new Marker(
-          width: 45.0,
-          height: 45.0,
-          point: new LatLng(
-              first1.coordinates.latitude, first1.coordinates.longitude),
-          builder: (context) => new Container(
-            child: IconButton(
-              color: Colors.deepPurple,
-              icon: Icon(Icons.location_on),
-              iconSize: 45.0,
-              onPressed: () {
-                print(first1.featureName);
-              },
-            ),
-          ),
-        ),
-      );
-    });
-  } //not necessary for now
 
   @override
   Widget build(BuildContext context) {
