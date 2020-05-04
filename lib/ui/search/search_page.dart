@@ -233,6 +233,7 @@ class _NextPageState extends State<NextPage> {
     String accessKey =
         'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg';
 
+    //This gives the json response of the route between 2 points
     Response response = await get(
         "https://api.mapbox.com/directions/v5/mapbox/driving/$start_lng,$start_lat;$end_lng,$end_lat?"
         "geometries=geojson"
@@ -240,16 +241,18 @@ class _NextPageState extends State<NextPage> {
         "access_token=$accessKey");
 
     var responseString = response.body;
-    var data = json.decode(responseString);
+    var data = json.decode(responseString); //convert json response to a map
 
     if (data['routes'].length > 1) {
-      List<dynamic> coords1 = data['routes'][0]['geometry']['coordinates'];
+      List<dynamic> coords1 = data['routes'][0]['geometry'][
+          'coordinates']; //this is the list which contains the intermediate points of route1
       for (List<dynamic> i in coords1) {
         double o = i[1];
         double p = i[0];
         route1.add(LatLng(o, p));
       }
-      List<dynamic> coords2 = data['routes'][1]['geometry']['coordinates'];
+      List<dynamic> coords2 =
+          data['routes'][1]['geometry']['coordinates']; //route2
       for (List<dynamic> i in coords2) {
         double o = i[1];
         double p = i[0];
@@ -272,10 +275,12 @@ class _NextPageState extends State<NextPage> {
     /// someone try guysssssssssssssss.......
     Map opi = json.decode(
         '{"Zone" : {"Adyar" : {"latitude" : 13.001177787780762,"longitude" : 80.2564926147461,"priority" : 2,"radiusInMeters" : 1000,"zoneName" : "Adyar"},"Alandur" : {"latitude" : 12.99748706817627,"longitude" : 80.20063781738281,"priority" : 2,"radiusInMeters" : 1000,"zoneName" : "Alandur"},"Ambattur" : {"latitude" : 13.114338874816895,"longitude" : 80.15478515625,"priority" : 3,"radiusInMeters" : 1000,"zoneName" : "Ambattur"},"Anna Nagar" : {"latitude" : 13.084956169128418,"longitude" : 80.21013641357422,"priority" : 1,"radiusInMeters" : 2000,"zoneName" : "Anna Nagar"},"Kodambakkam" : {"latitude" : 13.052102088928223,"longitude" : 80.22552490234375,"priority" : 1,"radiusInMeters" : 2000,"zoneName" : "Kodambakkam"},"Madhavaram" : {"latitude" : 13.148789405822754,"longitude" : 80.23056030273438,"priority" : 3,"radiusInMeters" : 1000,"zoneName" : "Madhavaram"},"Manali, Chennai" : {"latitude" : 13.177928924560547,"longitude" : 80.27007293701172,"priority" : 3,"radiusInMeters" : 1000,"zoneName" : "Manali, Chennai"},"Perungudi" : {"latitude" : 12.965365409851074,"longitude" : 80.24610900878906,"priority" : 2,"radiusInMeters" : 1000,"zoneName" : "Perungudi"},"Royapuram" : {"latitude" : 13.113700866699219,"longitude" : 80.29541015625,"priority" : 1,"radiusInMeters" : 1500,"zoneName" : "Royapuram"},"Sholinganallur" : {"latitude" : 12.90098762512207,"longitude" : 80.2279281616211,"priority" : 3,"radiusInMeters" : 1000,"zoneName" : "Sholinganallur"},"Teynampet" : {"latitude" : 13.040473937988281,"longitude" : 80.25033569335938,"priority" : 1,"radiusInMeters" : 2000,"zoneName" : "Teynampet"},"Tiru Vi Ka Nagar" : {"latitude" : 13.119937896728516,"longitude" : 80.23422241210938,"priority" : 1,"radiusInMeters" : 1000,"zoneName" : "Tiru Vi Ka Nagar"},"Tiruvottiyur" : {"latitude" : 13.164259910583496,"longitude" : 80.30014038085938,"priority" : 2,"radiusInMeters" : 1000,"zoneName" : "Tiruvottiyur"},"Tondiarpet" : {"latitude" : 13.1317998,"longitude" : 80.274725,"priority" : 1,"radiusInMeters" : 1000,"zoneName" : "Tondiarpet"},"Valasaravakkam" : {"latitude" : 13.04027271270752,"longitude" : 80.17229461669922,"priority" : 2,"radiusInMeters" : 1000,"zoneName" : "Valasaravakkam"}}}');
+    //converts json-string to map
 
     for (LatLng j in route1) {
       int priority = 4;
       for (String i in opi['Zone'].keys) {
+        //checks whether the point is in the radius of each n every containment zone
         double lat1 = opi['Zone'][i]['latitude'];
         double lat2 = j.latitude;
         double lon1 = opi['Zone'][i]['longitude'];
@@ -292,6 +297,7 @@ class _NextPageState extends State<NextPage> {
         double d = R * c; // in metres
 
         if (d <= opi['Zone'][i]['radiusInMeters']) {
+          //if condition true,point is in the radius
           route_cnt1++;
           if (priority > opi['Zone'][i]['priority']) {
             priority = opi['Zone'][i]['priority'];
@@ -349,6 +355,7 @@ class _NextPageState extends State<NextPage> {
       for (LatLng j in dangerpoints1.keys) {
         if (dangerpoints1[j] == 3) {
           polycolourlines.add(new Polyline(
+            //draws a polyline from point in containment zone to next point
             points: [
               //route1[route1.indexOf(j) - 1],
               j,
@@ -424,11 +431,11 @@ class _NextPageState extends State<NextPage> {
     } catch (e) {
       showAlertDialog(context);
     }
-  }
+  } //geocodes the input source and destination,gets the route if error,shows a dialog box
 
   setMarkers() {
     return allMarkers;
-  }
+  } //not necessary for now
 
   Future addMarker() async {
     await showDialog(
@@ -452,7 +459,7 @@ class _NextPageState extends State<NextPage> {
             ],
           );
         });
-  }
+  } //not necessary for now
 
   addToList() async {
     final query = places[0];
@@ -505,7 +512,7 @@ class _NextPageState extends State<NextPage> {
         ),
       );
     });
-  }
+  } //not necessary for now
 
   @override
   Widget build(BuildContext context) {
