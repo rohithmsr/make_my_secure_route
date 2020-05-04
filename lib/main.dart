@@ -174,6 +174,7 @@ class _MapdemoState extends State<Mapdemo> {
                                 placeMarkerAdd(place.placeName);
                                 Navigator.pop(context);
                               },
+
                               limit: 10,
                             ),
                           ),
