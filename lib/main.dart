@@ -5,8 +5,8 @@ import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'ui/search/search_page.dart';
 import 'package:mapbox_search/mapbox_search.dart';
-//import 'ui/search/iterate.dart';
-//import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
 
 ///the search alone will have problem...others will work properly
 ///PLEASE USE YOUR OWN MAPBOX API KEY
@@ -52,6 +52,7 @@ class _MapdemoState extends State<Mapdemo> {
 
   double a = 13.08;
   double b = 80.27;
+  List<Marker> markers = [];
 
   void getLocation() async {
     final position = await Geolocator()
@@ -59,16 +60,56 @@ class _MapdemoState extends State<Mapdemo> {
     a = position.latitude;
     b = position.longitude;
     controller.move(new LatLng(a, b), 15.0);
-    setState(() {
-      a = position.latitude;
-      b = position.longitude;
-    });
+    markers.add(new Marker(
+      width: 40.0,
+      height: 40.0,
+      point: new LatLng(a, b),
+      builder: (context) => new Container(
+        child: IconButton(
+          icon: Icon(Icons.location_on),
+          color: Colors.red,
+          iconSize: 45.0,
+          onPressed: () {
+            print('Marker tapped');
+          },
+        ),
+      ),
+    ));
+    //setState(() {
+    //a = position.latitude;
+    //b = position.longitude;
+    //});
+  }
+
+  void placeMarkerAdd(String placename) async {
+    final query = placename;
+    var addresses = await Geocoder.local.findAddressesFromQuery(query);
+    var first = addresses.first;
+    controller.move(
+        new LatLng(first.coordinates.latitude, first.coordinates.longitude),
+        15.0);
+    markers.add(
+      new Marker(
+        width: 45.0,
+        height: 45.0,
+        point:
+            new LatLng(first.coordinates.latitude, first.coordinates.longitude),
+        builder: (context) => new Container(
+          child: IconButton(
+            color: Colors.deepPurple,
+            icon: Icon(Icons.location_on),
+            iconSize: 45.0,
+            onPressed: () {
+              print(first.featureName);
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final _startPointController = TextEditingController();
-
     return Center(
       child: Stack(
         children: <Widget>[
@@ -84,23 +125,7 @@ class _MapdemoState extends State<Mapdemo> {
                           'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg',
                       'id': 'mapbox.terrain-rgb'
                     }),
-                new MarkerLayerOptions(markers: [
-                  new Marker(
-                    width: 40.0,
-                    height: 40.0,
-                    point: new LatLng(a, b),
-                    builder: (context) => new Container(
-                      child: IconButton(
-                        icon: Icon(Icons.location_on),
-                        color: Colors.red,
-                        iconSize: 45.0,
-                        onPressed: () {
-                          print('Marker tapped');
-                        },
-                      ),
-                    ),
-                  )
-                ])
+                new MarkerLayerOptions(markers: markers),
               ]),
           Padding(
             padding: EdgeInsets.all(16.0),
@@ -136,7 +161,23 @@ class _MapdemoState extends State<Mapdemo> {
                       icon: Icon(Icons.search, color: Colors.white),
                       tooltip: 'Search',
                       onPressed: () {
-                        showSearch(context: context, delegate: DataSearch());
+                        //showSearch(context: context, delegate: DataSearch());
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MapBoxAutoCompleteWidget(
+                              apiKey:
+                                  'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg',
+                              hint: "Select starting point",
+                              onSelect: (place) {
+                                //_startPointController.text = place.placeName;
+                                placeMarkerAdd(place.placeName);
+                                Navigator.pop(context);
+                              },
+                              limit: 10,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -211,7 +252,7 @@ class DataSearch extends SearchDelegate<String> {
     "Kerala",
   ];
 
-  List<MapBoxPlace> liist = [];
+  List liist = [];
 
   @override
   List<Widget> buildActions(BuildContext context) {
