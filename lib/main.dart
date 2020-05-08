@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'ui/search/search_page.dart';
-import 'package:mapbox_search/mapbox_search.dart';
+import 'ui/search/from_to.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
 
@@ -19,7 +18,6 @@ void main() {
       // When navigating to the "/" route, build the FirstScreen widget.
       '/': (context) => FirstRoute(),
       // When navigating to the "/second" route, build the SecondScreen widget.
-      '/second': (context) => SearchPaage(),
     },
   ));
 }
@@ -32,7 +30,7 @@ class FirstRoute extends StatelessWidget {
         child: Scaffold(
           backgroundColor: Colors.white70,
           appBar: AppBar(
-            title: Text('Make My Safest Route'),
+            title: Text('Make My Secure Route'),
             backgroundColor: Colors.deepPurple,
           ),
           body: Mapdemo(),
@@ -53,13 +51,14 @@ class _MapdemoState extends State<Mapdemo> {
   double a = 13.08;
   double b = 80.27;
   List<Marker> markers = [];
+  bool enable = true;
 
   void getLocation() async {
     final position = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     a = position.latitude;
     b = position.longitude;
-    controller.move(new LatLng(a, b), 15.0);
+    controller.move(new LatLng(a, b), 10.0);
     markers.add(new Marker(
       width: 40.0,
       height: 40.0,
@@ -174,7 +173,6 @@ class _MapdemoState extends State<Mapdemo> {
                                 placeMarkerAdd(place.placeName);
                                 Navigator.pop(context);
                               },
-
                               limit: 10,
                             ),
                           ),
@@ -194,125 +192,40 @@ class _MapdemoState extends State<Mapdemo> {
                       icon: Icon(Icons.directions, color: Colors.white),
                       tooltip: 'Get Safe Route',
                       onPressed: () {
-                        Navigator.pushNamed(context, '/second');
+                        var route = new MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                SearchPaage(enable));
+                        Navigator.of(context).push(route);
                       },
                     ),
+                  ),
+                  SizedBox(
+                    height: 15.0,
                   ),
                 ],
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+                alignment: Alignment.bottomCenter,
+                child: RaisedButton(
+                  onPressed: () {
+                    setState(() {
+                      enable = !enable;
+                    });
+                  },
+                  child: enable
+                      ? const Text('தமிழ்', style: TextStyle(fontSize: 20))
+                      : const Text('English', style: TextStyle(fontSize: 20)),
+                  color: Colors.deepPurple,
+                  textColor: Colors.white,
+                  elevation: 5,
+                )),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class DataSearch extends SearchDelegate<String> {
-  final cities = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh ",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jammu and Kashmir",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
-    "Andaman and Nicobar Islands",
-    "Chandigarh",
-    "Dadra and Nagar Haveli",
-    "Daman and Diu",
-    "Lakshadweep",
-    "National Capital Territory of Delhi",
-    "Puducherry"
-  ];
-
-  final recentCities = [
-    "Tamil Nadu",
-    "Kerala",
-  ];
-
-  List liist = [];
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    // actions for appbar
-    return [
-      IconButton(
-          icon: Icon(Icons.clear),
-          onPressed: () {
-            query = "";
-          })
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    // leading icon n appbar's left
-    return IconButton(
-        icon: AnimatedIcon(
-          icon: AnimatedIcons.menu_arrow,
-          progress: transitionAnimation,
-        ),
-        onPressed: () {
-          close(context, null);
-        });
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return null;
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    placesSearch(String query) async {
-      String apiKey =
-          'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg'; //Set up a test api key before running
-
-      var placesService = PlacesSearch(
-        apiKey: apiKey,
-        country: "IN",
-        limit: 15,
-      );
-
-      var places = await placesService.getPlaces(query);
-
-      for (int i = 0; i < places.length; i++) {
-        liist.add(places[i]);
-      }
-    }
-
-    placesSearch('Anna');
-    List suggestionList = query.isEmpty ? recentCities : liist;
-
-    return ListView.builder(
-      itemBuilder: (context, index) => ListTile(
-        leading: Icon(Icons.location_on),
-        title: Text(suggestionList[index]),
-      ),
-      itemCount: suggestionList.length,
     );
   }
 }

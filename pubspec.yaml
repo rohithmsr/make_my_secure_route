@@ -29,7 +29,10 @@ dependencies:
   mapbox_search: ^2.0.0
   flutter_mapbox_navigation: ^0.0.10
   flutter_mapbox_autocomplete: ^1.0.4
-  geojson:
+  geojson: ^0.9.1
+  xml2json: ^4.2.0
+  poly: ^1.0.7+2
+  translator: ^0.1.4
 
 dev_dependencies:
   flutter_test:
