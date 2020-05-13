@@ -179,9 +179,8 @@ class _SearchPageState extends State<SearchPage> {
           child: RaisedButton(
             onPressed: () {
               var route = new MaterialPageRoute(
-                  builder: (BuildContext context) => NextPage(
-                      "${_textController1.text.translate(to: 'en')}",
-                      "${_textController2.text.translate(to: 'en')}"));
+                  builder: (BuildContext context) =>
+                      NextPage(_textController1.text, _textController2.text));
               Navigator.of(context).push(route);
             },
             color: Colors.deepPurple,

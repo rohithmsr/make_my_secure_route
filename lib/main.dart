@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'ui/search/from_to.dart';
+import 'ui/search/splashscreen.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
 
@@ -16,7 +17,7 @@ void main() {
     initialRoute: '/',
     routes: {
       // When navigating to the "/" route, build the FirstScreen widget.
-      '/': (context) => FirstRoute(),
+      '/': (context) => SplashScreen(),
       // When navigating to the "/second" route, build the SecondScreen widget.
     },
   ));
@@ -59,14 +60,15 @@ class _MapdemoState extends State<Mapdemo> {
     a = position.latitude;
     b = position.longitude;
     controller.move(new LatLng(a, b), 10.0);
+    markers.clear();
     markers.add(new Marker(
       width: 40.0,
       height: 40.0,
       point: new LatLng(a, b),
       builder: (context) => new Container(
         child: IconButton(
-          icon: Icon(Icons.location_on),
-          color: Colors.red,
+          icon: Icon(Icons.my_location),
+          color: Colors.blueAccent,
           iconSize: 45.0,
           onPressed: () {
             print('Marker tapped');
@@ -217,8 +219,10 @@ class _MapdemoState extends State<Mapdemo> {
                     });
                   },
                   child: enable
-                      ? const Text('தமிழ்', style: TextStyle(fontSize: 20))
-                      : const Text('English', style: TextStyle(fontSize: 20)),
+                      ? const Text('தமிழில் மொழிபெயர்க்கவும்',
+                          style: TextStyle(fontSize: 14))
+                      : const Text('Switch to English',
+                          style: TextStyle(fontSize: 20)),
                   color: Colors.deepPurple,
                   textColor: Colors.white,
                   elevation: 5,

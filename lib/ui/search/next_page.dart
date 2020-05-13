@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:geocoder/geocoder.dart';
 import 'package:http/http.dart';
 import 'dart:convert';
@@ -9,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:xml2json/xml2json.dart';
-import 'package:poly/poly.dart' as plygn;
 
 class NextPage extends StatefulWidget {
   final String from;
@@ -25,25 +23,14 @@ class _NextPageState extends State<NextPage> {
   List<Marker> allMarkers = [];
   List<String> places = [];
   List<LatLng> route1 = [];
-  List<LatLng> route2 = [];
-  List<LatLng> saferoute = [];
-  List<LatLng> subsaferoute = [];
-  List<LatLng> subsubsaferoute = [];
-  List<LatLng> finalist = [];
-  List<LatLng> saferoute1 = [];
-  List<LatLng> presaferoute = [];
-  List<LatLng> sufsaferoute = [];
-  List<LatLng> finalistsafe = [];
-  List<List> coords = [];
-  List<Polyline> polycolourlines = [];
-  Map<LatLng, int> dangerpoints1 = {};
-  Map<LatLng, int> dangerpoints2 = {};
+  //List<LatLng> saferoute1 = [];
+  List<List> coordinates = [];
+  List<Polyline> polyline = [];
 
   @override
   void initState() {
     places.add(widget.from);
     places.add(widget.to);
-    getPolygons();
     fetchroute();
     super.initState();
   }
@@ -56,7 +43,7 @@ class _NextPageState extends State<NextPage> {
       final query1 = places[1];
       var addresses1 = await Geocoder.local.findAddressesFromQuery(query1);
       var first1 = addresses1.first;
-      getSafestRoute(
+      getSafestRouteUsingApi(
         LatLng(first.coordinates.latitude, first.coordinates.longitude),
         LatLng(first1.coordinates.latitude, first1.coordinates.longitude),
       );
@@ -128,140 +115,23 @@ class _NextPageState extends State<NextPage> {
     );
   }
 
-  Future<void> apisafe(LatLng startingpt, LatLng endingpt) async {
-    finalistsafe.clear();
-    double start_lat = startingpt.latitude;
-    double start_lng = startingpt.longitude;
-    double end_lat = endingpt.latitude;
-    double end_lng = endingpt.longitude;
+  Future<void> getSafestRouteUsingApi(LatLng start, LatLng end) async {
+    double lat1 = start.latitude;
+    double lng1 = start.longitude;
+    double lat2 = end.latitude;
+    double lng2 = end.longitude;
 
-    String accessKey =
-        'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg';
-
-    //This gives the json response of the route between 2 points
     Response response = await get(
-        "https://api.mapbox.com/directions/v5/mapbox/driving/$start_lng,$start_lat;$end_lng,$end_lat?"
-        "geometries=geojson"
-        "&alternatives=true&"
-        "access_token=$accessKey");
+        "https://ceg-maps.herokuapp.com/getRoute?st_lat=$lat1&st_lng=$lng1&e_lat=$lat2&e_lng=$lng2");
+    print(response.body);
+    var data = json.decode(response.body);
 
-    var responseString = response.body;
-    var data = json.decode(responseString);
-
-    List<dynamic> coords1 = data['routes'][0]['geometry']['coordinates'];
-    for (List<dynamic> i in coords1) {
-      double o = i[1];
-      double p = i[0];
-      finalistsafe.add(LatLng(o, p));
-    }
-  }
-
-  Future<void> getPolygons() async {
-    //    getting info xml
-    Response info_xml = await get("https://covid.gccservice.in/api/csr/"
-        "hotspots?dummy=${DateTime.now().millisecondsSinceEpoch}");
-    String goodXmlString = info_xml.body;
-
-//    converting into json
-    myTransformer.parse(goodXmlString);
-    String json = myTransformer.toBadgerfish();
-
-//    parsing json and iterating
-    for (int i = 0;
-        i < jsonDecode(json)['kml']['Document']['Placemark'].length;
-        i++) {
-      List<String> curr_opi = jsonDecode(json)['kml']['Document']['Placemark']
-                  [i]['Polygon']['outerBoundaryIs']['LinearRing']['coordinates']
-              [r"$"]
-          .split(r",0\n              ");
-
-      //      parsing json
-      String last = curr_opi.last.replaceAll(r',0\n            ', '');
-      String first = curr_opi[0].replaceAll('              ', '');
-      curr_opi.removeLast();
-      curr_opi.removeAt(0);
-      curr_opi.insert(curr_opi.length, last);
-      curr_opi.insert(0, first);
-      last = '';
-      first = '';
-
-//      storing latlong in the format of Point()
-      List<Point<num>> dummy = [];
-      int order_of_d = 0;
-      while (order_of_d <= (curr_opi.length - 1)) {
-        dummy.add(Point(num.parse(curr_opi[order_of_d].split(',')[1]),
-            num.parse(curr_opi[order_of_d].split(',')[0])));
-        order_of_d += 1;
-      }
-      coords.add([dummy]);
-    }
-  }
-
-  LatLng nextValidPoint(int index, List<LatLng> container) {
-    for (int k = index; k < container.length; k++) {
-      for (List<dynamic> i in coords) {
-        if (plygn.Polygon(i[0]).isPointInside(
-                plygn.Point(container[k].latitude, container[k].longitude)) ==
-            false) {
-          return container[k];
-        }
-      }
-    }
-    return container[container.length - 1];
-  }
-
-  Future<void> getSafestRoute(LatLng startingpt, LatLng endingpt) async {
-    double start_lat = startingpt.latitude;
-    double start_lng = startingpt.longitude;
-    double end_lat = endingpt.latitude;
-    double end_lng = endingpt.longitude;
-
-    saferoute1.add(startingpt);
-
-    String accessKey =
-        'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg';
-
-    //This gives the json response of the route between 2 points
-    Response response = await get(
-        "https://api.mapbox.com/directions/v5/mapbox/driving/$start_lng,$start_lat;$end_lng,$end_lat?"
-        "geometries=geojson"
-        "&alternatives=true&"
-        "access_token=$accessKey");
-
-    var responseString = response.body;
-    var data = json.decode(responseString);
-
-    List<dynamic> coords1 = data['routes'][0]['geometry']['coordinates'];
-    for (List<dynamic> i in coords1) {
-      double o = i[1];
-      double p = i[0];
-      saferoute1.add(LatLng(o, p));
-    }
-
-    saferoute1.add(endingpt);
-
-    int index = 0;
-    LatLng loopchecker = saferoute1[0];
-    while (loopchecker != endingpt) {
-      LatLng j = saferoute1[index];
-      for (List<dynamic> i in coords) {
-        if (plygn.Polygon(i[0])
-                .isPointInside(plygn.Point(j.latitude, j.longitude)) ==
-            true) {
-          LatLng nextValidOne = nextValidPoint(saferoute1.indexOf(j) - 1,
-              saferoute1.sublist(index, saferoute1.length));
-          apisafe(saferoute1[saferoute1.indexOf(j) - 1], nextValidOne);
-
-          presaferoute = saferoute1.sublist(0, saferoute1.indexOf(j));
-          sufsaferoute = saferoute1.sublist(
-              saferoute1.indexOf(nextValidOne), saferoute1.length);
-          presaferoute.addAll(finalistsafe);
-          presaferoute.addAll(subsubsaferoute);
-          saferoute1 = presaferoute;
-        }
-      }
-      index = index + 1;
-      loopchecker = saferoute1[index];
+    List<dynamic> coordinates1 = data['route'];
+    for (String i in coordinates1) {
+      var a = i.split(",");
+      double o = double.parse(a[0]);
+      double p = double.parse(a[1]);
+      route1.add(LatLng(o, p));
     }
     setState(() {});
   }
@@ -288,7 +158,7 @@ class _NextPageState extends State<NextPage> {
             new MarkerLayerOptions(markers: allMarkers),
             new PolylineLayerOptions(polylines: [
               new Polyline(
-                points: saferoute1,
+                points: route1,
                 strokeWidth: 6.0,
                 color: Colors.blue,
               ),

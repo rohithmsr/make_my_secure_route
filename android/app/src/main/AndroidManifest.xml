@@ -9,7 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="mapsuiprojectprac"
+        android:label="Make My Secure Route"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
