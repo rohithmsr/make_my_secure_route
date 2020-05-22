@@ -32,7 +32,11 @@ dependencies:
   geojson: ^0.9.1
   xml2json: ^4.2.0
   poly: ^1.0.7+2
+  geodesy: ^0.3.2
   translator: ^0.1.4
+  flutter_spinkit: "^4.1.2"
+  location: ^3.0.0
+  ez_flutter: ^0.4.4
 
 dev_dependencies:
   flutter_test:

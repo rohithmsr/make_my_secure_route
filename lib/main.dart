@@ -4,7 +4,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'ui/search/from_to.dart';
-import 'ui/search/splashscreen.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
 
@@ -17,7 +16,7 @@ void main() {
     initialRoute: '/',
     routes: {
       // When navigating to the "/" route, build the FirstScreen widget.
-      '/': (context) => SplashScreen(),
+      '/': (context) => FirstRoute(),
       // When navigating to the "/second" route, build the SecondScreen widget.
     },
   ));
@@ -53,6 +52,12 @@ class _MapdemoState extends State<Mapdemo> {
   double b = 80.27;
   List<Marker> markers = [];
   bool enable = true;
+  List<Polyline> coords = [];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void getLocation() async {
     final position = await Geolocator()
@@ -127,6 +132,7 @@ class _MapdemoState extends State<Mapdemo> {
                       'id': 'mapbox.terrain-rgb'
                     }),
                 new MarkerLayerOptions(markers: markers),
+                new PolylineLayerOptions(polylines: coords),
               ]),
           Padding(
             padding: EdgeInsets.all(16.0),
@@ -170,6 +176,8 @@ class _MapdemoState extends State<Mapdemo> {
                               apiKey:
                                   'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg',
                               hint: "Select starting point",
+                              country: 'in',
+                              language: enable ? 'en' : 'ta',
                               onSelect: (place) {
                                 //_startPointController.text = place.placeName;
                                 placeMarkerAdd(place.placeName);

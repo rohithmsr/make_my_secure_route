@@ -4,7 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
 import 'package:latlong/latlong.dart';
 import 'dart:core';
-import 'next_page.dart';
+import 'spinkit.dart';
 import 'package:translator/translator.dart';
 
 /// I am really sorry for the unordered code without proper documentations...
@@ -95,6 +95,7 @@ class _SearchPageState extends State<SearchPage> {
             ),
             child: CustomTextField(
               textController: _textController1,
+//              initialValue: enable ? 'Your Location' : 'நீங்கள் இருக்கும் இடம்',
               hintText: enable ? "From" : "புறப்படும் இடம்",
               prefixIcon: Icon(
                 Icons.my_location,
@@ -108,6 +109,8 @@ class _SearchPageState extends State<SearchPage> {
                       apiKey:
                           "pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg",
                       hint: "From",
+                      language: enable ? 'en' : 'ta',
+                      country: 'in',
                       onSelect: (place) {
                         //String src = place.placeName.substring(0, 15);
                         String src = place.placeName;
@@ -116,7 +119,7 @@ class _SearchPageState extends State<SearchPage> {
                         _textController1.text = k[0];
                         Navigator.pop(context);
                       },
-                      limit: 10,
+                      limit: 30,
                     ),
                   ),
                 );
@@ -125,7 +128,70 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         Positioned(
-          top: 105.0,
+          top: 100,
+          right: 170,
+          child: Padding(
+            padding: EdgeInsets.all(14.0),
+            child: SizedBox.fromSize(
+              size: Size(36, 36), // button width and height
+              child: ClipOval(
+                child: Material(
+                  color: Colors.deepPurple, // button color
+                  child: InkWell(
+                    splashColor: Colors.green, // splash color
+                    onTap: () {
+                      String z = _textController1.text;
+                      _textController1.text = _textController2.text;
+                      _textController2.text = z;
+                      if (_textController2.text == _textController1.text) {
+                        _textController2.text = '';
+                      }
+                    }, // button pressed
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(Icons.swap_vert, color: Colors.white), // icon
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 100,
+          right: 130,
+          child: Padding(
+            padding: EdgeInsets.all(14.0),
+            child: SizedBox.fromSize(
+              size: Size(36, 36), // button width and height
+              child: ClipOval(
+                child: Material(
+                  color: Colors.deepPurple, // button color
+                  child: InkWell(
+                    splashColor: Colors.green, // splash color
+                    onTap: () {
+                      _textController1.text =
+                          enable ? 'Your Location' : 'நீங்கள் இருக்கும் இடம்';
+                      if (_textController2.text == _textController1.text) {
+                        _textController2.text = '';
+                      }
+                    }, // button pressed
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Icon(Icons.my_location, color: Colors.white), // icon
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 165.0,
           right: 15.0,
           left: 15.0,
           child: Container(
@@ -157,6 +223,8 @@ class _SearchPageState extends State<SearchPage> {
                         apiKey:
                             "pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg",
                         hint: 'To',
+                        country: 'in',
+                        language: enable ? 'en' : 'ta',
                         onSelect: (place) {
                           String destination = place.placeName;
                           print(destination);
@@ -173,14 +241,14 @@ class _SearchPageState extends State<SearchPage> {
         ),
         SizedBox(height: 30),
         Positioned(
-          top: 165.0,
+          top: 225.0,
           right: 15.0,
           left: 15.0,
           child: RaisedButton(
             onPressed: () {
               var route = new MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      NextPage(_textController1.text, _textController2.text));
+                  builder: (BuildContext context) => LoadingScreen(
+                      _textController1.text, _textController2.text, enable));
               Navigator.of(context).push(route);
             },
             color: Colors.deepPurple,
