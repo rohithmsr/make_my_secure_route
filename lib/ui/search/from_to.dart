@@ -9,6 +9,7 @@ import 'package:translator/translator.dart';
 
 /// I am really sorry for the unordered code without proper documentations...
 /// please suggest me some measures in writing the code effectively n properly
+///
 
 class SearchPaage extends StatelessWidget {
   final bool enable;
