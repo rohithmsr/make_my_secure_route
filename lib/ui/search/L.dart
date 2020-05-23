@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:location/location.dart';
-import 'package:http/http.dart';
-import 'dart:convert';
-import 'dart:async';
 import 'dart:core';
 
 class navigation1 extends StatefulWidget {
@@ -28,7 +25,6 @@ class _navigation1State extends State<navigation1> {
   double pos_lat = 13.0633213;
   double pos_long = 80.2056;
   List<LatLng> route1 = [];
-
 //  Future<void> getSafestRouteUsingApi(LatLng start, LatLng end) async {
 //    double lat1 = start.latitude;
 //    double lng1 = start.longitude;
@@ -49,8 +45,7 @@ class _navigation1State extends State<navigation1> {
 //      route1.add(LatLng(o, p));
 //    }
 //    setState(() {});
-//  }
-
+//
   @override
   void initState() {
     route1.addAll(widget.route);

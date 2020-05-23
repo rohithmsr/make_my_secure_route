@@ -3,12 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mapsuiprojectprac/ui/search/splashscreen.dart';
 import 'ui/search/from_to.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:flutter_mapbox_autocomplete/flutter_mapbox_autocomplete.dart';
-
-///the search alone will have problem...others will work properly
-///PLEASE USE YOUR OWN MAPBOX API KEY
 
 void main() {
   return runApp(MaterialApp(
@@ -16,7 +14,7 @@ void main() {
     initialRoute: '/',
     routes: {
       // When navigating to the "/" route, build the FirstScreen widget.
-      '/': (context) => FirstRoute(),
+      '/': (context) => SplashScreen(),
       // When navigating to the "/second" route, build the SecondScreen widget.
     },
   ));

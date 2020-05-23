@@ -52,6 +52,7 @@ class _SearchPageState extends State<SearchPage> {
   final _textController2 = TextEditingController();
   final translator = GoogleTranslator();
   bool enable;
+  bool repeat = false;
 
   @override
   void initState() {
@@ -249,7 +250,10 @@ class _SearchPageState extends State<SearchPage> {
             onPressed: () {
               var route = new MaterialPageRoute(
                   builder: (BuildContext context) => LoadingScreen(
-                      _textController1.text, _textController2.text, enable));
+                      _textController1.text,
+                      _textController2.text,
+                      enable,
+                      repeat));
               Navigator.of(context).push(route);
             },
             color: Colors.deepPurple,

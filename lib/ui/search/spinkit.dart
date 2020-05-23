@@ -16,7 +16,8 @@ class LoadingScreen extends StatefulWidget {
   final String from;
   final String to;
   final bool enable;
-  LoadingScreen(this.from, this.to, this.enable);
+  final bool repeat;
+  LoadingScreen(this.from, this.to, this.enable, this.repeat);
 
   @override
   _LoadingScreenState createState() => _LoadingScreenState();
@@ -33,12 +34,15 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Location location = new Location();
   LocationData locationData;
   bool enable;
+  bool repeat = false;
+  String http;
 
   @override
   void initState() {
     places.add(widget.from);
     places.add(widget.to);
     enable = widget.enable;
+    repeat = widget.repeat;
     super.initState();
     // USE UR FN INSTEAD OF THIS getLocationData fn.
     fetchroute();
@@ -229,11 +233,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
     double lng1 = start.longitude;
     double lat2 = end.latitude;
     double lng2 = end.longitude;
+    String lang = enable ? 'en-gb' : 'ta';
 
     Response response = await get(
-        "https://ceg-maps.herokuapp.com/getRoute?st_lat=$lat1&st_lng=$lng1&e_lat=$lat2&e_lng=$lng2&lang=en-gb");
+        "https://ceg-maps.herokuapp.com/getRoute?st_lat=$lat1&st_lng=$lng1&e_lat=$lat2&e_lng=$lng2&lang=$lang");
     print(response.body);
     var data = json.decode(response.body);
+
+    http = data['http'];
 
     if (data['warning'] == 1) {
       ajyncConfirmDialog1(context);
@@ -261,91 +268,80 @@ class _LoadingScreenState extends State<LoadingScreen> {
       route1.add(LatLng(o, p));
     }
 
+    int duration = data['duration'];
+    int distance = data['distance'];
+
     setState(() {});
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-            builder: (context) => NextPage(places[0], places[1], route1,
-                allMarkers, LatLng(lat1, lng1), LatLng(lat2, lng2), enable)));
+            builder: (context) => NextPage(
+                places[0],
+                places[1],
+                route1,
+                allMarkers,
+                LatLng(lat1, lng1),
+                LatLng(lat2, lng2),
+                enable,
+                http,
+                duration,
+                distance)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          Container(
-            decoration: BoxDecoration(color: Colors.purple),
-          ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      CircleAvatar(
-                        backgroundColor: Colors.white,
-                        radius: 50.0,
-                        child: Icon(
-                          Icons.map,
-                          color: Colors.purple,
-                          size: 50.0,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                      ),
-                      Text(
-                        'MAKE MY SECURE ROUTE',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24.0),
-                      )
-                    ],
+      backgroundColor: Colors.deepPurple,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SpinKitSpinningCircle(
+              color: Colors.white,
+              size: 100.0,
+            ),
+            SizedBox(
+              height: 15.0,
+            ),
+            enable
+                ? Text(
+                    'Fetching the Safest Route...',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  )
+                : Text('பாதுகாப்பான வழியைப் பெறுகிறது...',
+                    style: TextStyle(fontSize: 12, color: Colors.white)),
+            SizedBox(
+              height: 15.0,
+            ),
+            repeat
+                ? Text(
+                    'You have deviated from the route...Re-routing again...',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  )
+                : Text(
+                    ' ',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
                   ),
-                ),
-              ),
-              Expanded(
-                flex: 1,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    CircularProgressIndicator(
-                      backgroundColor: Colors.white,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 20.0),
-                    ),
-                    enable
-                        ? Text(
-                            'HELPS TO REACH YOUR DESTINATION IN THE SAFEST WAY',
-                            softWrap: true,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                                color: Colors.white),
-                          )
-                        : Text(
-                            'பாதுகாப்பான வழியில் உங்கள் இலக்கை அடைய உதவும்',
-                            softWrap: true,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18.0,
-                                color: Colors.white),
-                          ),
-                  ],
-                ),
-              )
-            ],
-          )
-        ],
+            repeat
+                ? Text(
+                    'நீங்கள் பாதையிலிருந்து விலகிவிட்டீர்கள் ...',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  )
+                : Text(
+                    ' ',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+            repeat
+                ? Text(
+                    'புதிய பாதுகாப்பான வழியைப் பெறுகிறது...',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  )
+                : Text(
+                    ' ',
+                    style: TextStyle(fontSize: 12, color: Colors.white),
+                  )
+          ],
+        ),
       ),
     );
   }
