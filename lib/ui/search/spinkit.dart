@@ -31,6 +31,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
   List<List> coordinates = [];
   List<Polyline> polyline = [];
   double slat, slng;
+  double elat, elng;
   Location location = new Location();
   LocationData locationData;
   bool enable;
@@ -63,9 +64,20 @@ class _LoadingScreenState extends State<LoadingScreen> {
         slat = first.coordinates.latitude;
         slng = first.coordinates.longitude;
       }
+
       final query1 = places[1];
-      var addresses1 = await Geocoder.local.findAddressesFromQuery(query1);
-      var first1 = addresses1.first;
+      if (places[1] == 'Your Location' ||
+          places[1] == 'நீங்கள் இருக்கும் இடம்') {
+        final locationData = await location.getLocation();
+        elat = locationData.latitude;
+        elng = locationData.longitude;
+      } else {
+        var addresses = await Geocoder.local.findAddressesFromQuery(query1);
+        var first = addresses.first;
+        elat = first.coordinates.latitude;
+        elng = first.coordinates.longitude;
+      }
+
       allMarkers.add(
         new Marker(
           width: 45.0,
@@ -85,15 +97,14 @@ class _LoadingScreenState extends State<LoadingScreen> {
         new Marker(
           width: 45.0,
           height: 45.0,
-          point: new LatLng(
-              first1.coordinates.latitude, first1.coordinates.longitude),
+          point: new LatLng(elat, elng),
           builder: (context) => new Container(
             child: IconButton(
               color: Colors.deepPurple,
               icon: Icon(Icons.location_on),
               iconSize: 45.0,
               onPressed: () {
-                print(first1.featureName);
+                print('');
               },
             ),
           ),
@@ -101,7 +112,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       );
       getSafestRouteUsingApi(
         LatLng(slat, slng),
-        LatLng(first1.coordinates.latitude, first1.coordinates.longitude),
+        LatLng(elat, elng),
       );
       setState(() {});
     } catch (e) {

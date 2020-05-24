@@ -6,6 +6,7 @@ import 'package:latlong/latlong.dart';
 import 'dart:core';
 import 'spinkit.dart';
 import 'package:translator/translator.dart';
+import 'markonmap.dart';
 
 /// I am really sorry for the unordered code without proper documentations...
 /// please suggest me some measures in writing the code effectively n properly
@@ -13,18 +14,20 @@ import 'package:translator/translator.dart';
 
 class SearchPaage extends StatelessWidget {
   final bool enable;
-  SearchPaage(this.enable);
+  final String addr;
+  SearchPaage(this.enable, this.addr);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Soup(enable),
+      home: Soup(enable, addr),
     );
   }
 }
 
 class Soup extends StatelessWidget {
   final bool enable;
-  Soup(this.enable);
+  final String addr;
+  Soup(this.enable, this.addr);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,7 +37,7 @@ class Soup extends StatelessWidget {
       ),
       backgroundColor: Colors.white70,
       body: Container(
-        child: SearchPage(enable),
+        child: SearchPage(enable, addr),
       ),
     );
   }
@@ -42,7 +45,8 @@ class Soup extends StatelessWidget {
 
 class SearchPage extends StatefulWidget {
   final bool enable;
-  SearchPage(this.enable);
+  final String addr;
+  SearchPage(this.enable, this.addr);
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -53,10 +57,15 @@ class _SearchPageState extends State<SearchPage> {
   final translator = GoogleTranslator();
   bool enable;
   bool repeat = false;
+  double currentlat;
+  double currentlng;
+  String addr;
 
   @override
   void initState() {
     enable = widget.enable;
+    addr = widget.addr;
+    _textController1.text += addr;
     super.initState();
   }
 
@@ -66,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
       children: <Widget>[
         FlutterMap(
             options:
-                new MapOptions(center: new LatLng(13.00, 80.17), minZoom: 6.0),
+                new MapOptions(center: new LatLng(13.00, 80.17), zoom: 15.0),
             layers: [
               new TileLayerOptions(
                   urlTemplate:
@@ -97,7 +106,6 @@ class _SearchPageState extends State<SearchPage> {
             ),
             child: CustomTextField(
               textController: _textController1,
-//              initialValue: enable ? 'Your Location' : 'நீங்கள் இருக்கும் இடம்',
               hintText: enable ? "From" : "புறப்படும் இடம்",
               prefixIcon: Icon(
                 Icons.my_location,
@@ -114,12 +122,12 @@ class _SearchPageState extends State<SearchPage> {
                       language: enable ? 'en' : 'ta',
                       country: 'in',
                       onSelect: (place) {
-                        //String src = place.placeName.substring(0, 15);
                         String src = place.placeName;
                         print(src);
-                        List k = src.split(',');
-                        _textController1.text = k[0];
+                        _textController1.text = src;
                         Navigator.pop(context);
+                        _textController1.selection =
+                            TextSelection.collapsed(offset: 0);
                       },
                       limit: 30,
                     ),
@@ -230,9 +238,10 @@ class _SearchPageState extends State<SearchPage> {
                         onSelect: (place) {
                           String destination = place.placeName;
                           print(destination);
-                          List k = destination.split(',');
-                          _textController2.text = k[0];
+                          _textController2.text = destination;
                           Navigator.pop(context);
+                          _textController2.selection =
+                              TextSelection.collapsed(offset: 0);
                         },
                         limit: 10,
                       ),
@@ -261,6 +270,24 @@ class _SearchPageState extends State<SearchPage> {
                 ? const Text('Find The Safest Route',
                     style: TextStyle(fontSize: 20, color: Colors.white))
                 : const Text('பாதுகாப்பான பாதையைக் கண்டறியவும்',
+                    style: TextStyle(fontSize: 13, color: Colors.white)),
+          ),
+        ),
+        Positioned(
+          top: 275.0,
+          right: 15.0,
+          left: 15.0,
+          child: RaisedButton(
+            onPressed: () {
+              var route = new MaterialPageRoute(
+                  builder: (BuildContext context) => markonmap(enable));
+              Navigator.of(context).push(route);
+            },
+            color: Colors.deepPurple,
+            child: enable
+                ? const Text('Mark Place on Map',
+                    style: TextStyle(fontSize: 20, color: Colors.white))
+                : const Text('வரைபடத்தில் இடம் குறிக்கவும்',
                     style: TextStyle(fontSize: 13, color: Colors.white)),
           ),
         ),

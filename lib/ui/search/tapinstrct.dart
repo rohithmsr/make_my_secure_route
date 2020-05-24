@@ -20,9 +20,9 @@ class mapi extends StatefulWidget {
   final String http;
   final int duration;
   final int distance;
-  final String from;
+  final String to;
   mapi(this.route, this.dest, this.enable, this.source, this.http,
-      this.duration, this.distance, this.from);
+      this.duration, this.distance, this.to);
   @override
   _mapiState createState() => _mapiState();
 }
@@ -35,8 +35,9 @@ class _mapiState extends State<mapi> {
   LatLng dest;
   LatLng source;
   String http;
-  String from;
+  String to;
 
+  double rot;
   List<plygn.Point> polygon_points;
   double currentlat;
   double currentlng;
@@ -111,6 +112,8 @@ class _mapiState extends State<mapi> {
 
   List<List<double>> awq = [];
 
+  int time;
+  String strtime;
   final Distance distance = new Distance();
   Map k;
 
@@ -222,10 +225,12 @@ class _mapiState extends State<mapi> {
     dest = widget.dest;
     enable = widget.enable;
     source = widget.source;
-    from = widget.from;
+    to = widget.to;
     http = widget.http;
     totaltime = widget.duration;
     totallength = widget.distance;
+
+    rot = 0;
 
     super.initState();
 
@@ -242,6 +247,14 @@ class _mapiState extends State<mapi> {
           current_instruction = instructions[(instructions.length - 1) - u][4];
           current_len = instructions[(instructions.length - 1) - u][2];
           current_time = instructions[(instructions.length - 1) - u][1];
+          if ((totaltime) ~/ 3600 != 0) {
+            strtime = enable
+                ? '${(totaltime) ~/ 3600} hr ${(totaltime) % 3600 ~/ 60} min'
+                : '${(totaltime) ~/ 3600} மணி ${(totaltime) % 3600 ~/ 60} நிமி';
+          } else {
+            strtime =
+                enable ? '${totaltime ~/ 60} min' : '${totaltime ~/ 60} நிமி';
+          }
         }
         u -= 1;
       });
@@ -255,7 +268,7 @@ class _mapiState extends State<mapi> {
               LengthUnit.Meter,
               LatLng(currentLocation.latitude, currentLocation.longitude),
               instructions[0][3]) <=
-          120) {
+          65) {
         setState(() {
           if (u >= 0) {
             current_arrow = instructions[(instructions.length - 1) - u][5];
@@ -265,6 +278,14 @@ class _mapiState extends State<mapi> {
             current_time = instructions[(instructions.length - 1) - u][1];
             minustime += instructions[(instructions.length) - u][1];
             minuslength += instructions[(instructions.length) - u][2];
+            time = (totaltime - minustime) ~/ 60;
+            if ((totaltime - minustime) ~/ 3600 != 0) {
+              strtime = enable
+                  ? '${(totaltime - minustime) ~/ 3600} hr ${(totaltime - minustime) % 3600 ~/ 60} min'
+                  : '${(totaltime - minustime) ~/ 3600} மணி ${(totaltime - minustime) % 3600 ~/ 60} நிமி';
+            } else {
+              strtime = enable ? '${time} min' : '${time} நிமி';
+            }
           }
           u -= 1;
         });
@@ -279,24 +300,26 @@ class _mapiState extends State<mapi> {
                 LengthUnit.Meter,
                 LatLng(currentLocation.latitude, currentLocation.longitude),
                 source) <=
-            130) {
+            60) {
           offroute_tracker.add(true);
         } else {
           offroute_tracker.add(false);
         }
       }
 
-      if (offroute_tracker.length > 3) {
+      if (offroute_tracker.length > 15) {
         offroute_tracker.removeAt(0);
       }
 
       try {
         if (offroute_tracker[0] == false &&
             offroute_tracker[1] == false &&
-            offroute_tracker[2] == false) {
+            offroute_tracker[2] == false &&
+            offroute_tracker[3] == false &&
+            offroute_tracker[4] == false) {
           var route = new MaterialPageRoute(
               builder: (BuildContext context) =>
-                  LoadingScreen('Your Location', from, enable, repeat));
+                  LoadingScreen('Your Location', to, enable, repeat));
           Navigator.of(context).pushReplacement(route);
         }
       } catch (e) {}
@@ -304,7 +327,6 @@ class _mapiState extends State<mapi> {
       setState(() {
         currentlat = currentLocation.latitude;
         currentlng = currentLocation.longitude;
-        moooooove(currentLocation.latitude, currentLocation.longitude);
       });
     });
   }
@@ -320,31 +342,12 @@ class _mapiState extends State<mapi> {
                   mapController: mapController,
                   options: new MapOptions(
                     onTap: (location) {
-                      if (distance.as(
-                              LengthUnit.Meter,
-                              LatLng(location.latitude, location.longitude),
-                              instructions[0][3]) <=
-                          50) {
-                        print(instructions[0].last);
-                        setState(() {
-                          if (u >= 0) {
-                            current_arrow =
-                                instructions[(instructions.length - 1) - u][5];
-                            current_instruction =
-                                instructions[(instructions.length - 1) - u][4];
-                            current_len =
-                                instructions[(instructions.length - 1) - u][2];
-                            current_time =
-                                instructions[(instructions.length - 1) - u][1];
-                          }
-                          u -= 1;
-                        });
-                        instructions.removeAt(0);
-                      }
+                      print('gg');
                     },
                     center: LatLng(currentlat, currentlng),
                     minZoom: 7.0,
                     maxZoom: 18.0,
+                    rotation: rot,
                   ),
                   layers: [
                     new TileLayerOptions(
@@ -365,8 +368,8 @@ class _mapiState extends State<mapi> {
                     ]),
                     new MarkerLayerOptions(markers: [
                       new Marker(
-//                      width: 15,
-//                      height: 45,
+                        height: 49.0,
+                        width: 63.0,
                         point: new LatLng(currentlat, currentlng),
                         builder: (context) => new Container(
                           child: IconButton(
@@ -376,43 +379,10 @@ class _mapiState extends State<mapi> {
                               color: Colors.deepPurple),
                         ),
                       ),
-                      new Marker(
-                        width: 5.5,
-                        height: 5,
-                        point: new LatLng(currentlat, currentlng),
-                        builder: (context) => new Container(
-                          child: IconButton(
-                              icon: Icon(Icons.navigation),
-                              iconSize: 19.0,
-                              onPressed: () {},
-                              color: Colors.blue),
-                        ),
-                      ),
                     ]),
                   ]),
               GestureDetector(
-                onTap: () {
-//                  try {
-//                    setState(() {
-//                      if (u >= 0) {
-//                        current_arrow =
-//                            instructions[(instructions.length - 1) - u][5];
-//                        current_instruction =
-//                            instructions[(instructions.length - 1) - u][4];
-//                        current_len =
-//                            instructions[(instructions.length - 1) - u][2];
-//                        current_time =
-//                            instructions[(instructions.length - 1) - u][1];
-//                        minustime += instructions[(instructions.length) - u][1];
-//                        minuslength +=
-//                            instructions[(instructions.length) - u][2];
-//                      }
-//                      u -= 1;
-//                    });
-//                    instructions.removeAt(0);
-//                    print(instructions);
-//                  } catch (e) {}
-                },
+                onTap: () {},
                 child: Column(
                   children: <Widget>[
                     ConstrainedBox(
@@ -436,7 +406,7 @@ class _mapiState extends State<mapi> {
                                     maxWidth: 100,
                                   ),
                                   child: Image.asset(
-                                    "assets/arrows.png",
+                                    "assets/arrows1.png",
                                     fit: BoxFit.cover,
                                     height: 10.0,
                                     width: 10.0,
@@ -532,7 +502,7 @@ class _mapiState extends State<mapi> {
                                   ),
                                   child: enable
                                       ? Text(
-                                          '${(totaltime - minustime) ~/ 60} min',
+                                          '${strtime}',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 20,
@@ -541,10 +511,10 @@ class _mapiState extends State<mapi> {
                                           ),
                                         )
                                       : Text(
-                                          '${(totaltime - minustime) ~/ 60}நிமி',
+                                          '${strtime}',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                            fontSize: 20,
+                                            fontSize: 15,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
                                           ),
@@ -591,7 +561,7 @@ class _mapiState extends State<mapi> {
                               child: SizedBox.fromSize(
                                 size: enable
                                     ? Size(56, 56)
-                                    : Size(76, 76), // button width and height
+                                    : Size(48, 48), // button width and height
                                 child: ClipOval(
                                   child: Material(
                                     color:

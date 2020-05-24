@@ -143,7 +143,7 @@ class _NextPageState extends State<NextPage> {
           icon: Icon(Icons.navigate_before),
           onPressed: () {
             var route = new MaterialPageRoute(
-                builder: (BuildContext context) => SearchPaage(enable));
+                builder: (BuildContext context) => SearchPaage(enable, ''));
             Navigator.of(context).push(route);
           },
         ),
@@ -205,7 +205,7 @@ class _NextPageState extends State<NextPage> {
                       LatLng l = LatLng(user_lat, user_long);
                       num distance =
                           geodesy.distanceBetweenTwoGeoPoints(l, source);
-                      if (distance <= 120) {
+                      if (distance <= 60) {
                         var route = new MaterialPageRoute(
                             builder: (BuildContext context) => mapi(
                                 widget.routepoints,
@@ -215,11 +215,10 @@ class _NextPageState extends State<NextPage> {
                                 widget.http,
                                 widget.duration,
                                 widget.distance,
-                                widget.from));
+                                widget.to));
                         Navigator.of(context).push(route);
                       } else {
-                        print(
-                            'ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss');
+                        print('sssssssssssssssssssssssssssssssssssss');
                         _asyncConfirmDialog(context);
                       }
                     },

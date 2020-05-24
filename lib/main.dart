@@ -202,7 +202,7 @@ class _MapdemoState extends State<Mapdemo> {
                       onPressed: () {
                         var route = new MaterialPageRoute(
                             builder: (BuildContext context) =>
-                                SearchPaage(enable));
+                                SearchPaage(enable, ''));
                         Navigator.of(context).push(route);
                       },
                     ),
