@@ -15,6 +15,7 @@ void main() {
     routes: {
       // When navigating to the "/" route, build the FirstScreen widget.
       '/': (context) => SplashScreen(),
+      '/second': (context) => FirstRoute(),
       // When navigating to the "/second" route, build the SecondScreen widget.
     },
   ));
@@ -202,7 +203,7 @@ class _MapdemoState extends State<Mapdemo> {
                       onPressed: () {
                         var route = new MaterialPageRoute(
                             builder: (BuildContext context) =>
-                                SearchPaage(enable, ''));
+                                SearchPaage(enable, '', ''));
                         Navigator.of(context).push(route);
                       },
                     ),

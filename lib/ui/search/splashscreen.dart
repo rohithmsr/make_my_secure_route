@@ -25,9 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(
       Duration(seconds: 6),
-      () => Navigator.push(
+      () => Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => FirstRoute()),
+        ModalRoute.withName('/second'),
       ),
     );
   }

@@ -7,7 +7,9 @@ import 'package:geocoder/geocoder.dart';
 
 class markonmap extends StatefulWidget {
   final bool enable;
-  markonmap(this.enable);
+  final String from;
+  final String to;
+  markonmap(this.enable, this.from, this.to);
   @override
   _markonmapState createState() => _markonmapState();
 }
@@ -21,6 +23,9 @@ class _markonmapState extends State<markonmap> {
   double a;
   double b;
   String addr = '';
+  String toaddr = '';
+  String from = '';
+  String to = '';
 
   void getLocation() async {
     final position = await Geolocator()
@@ -29,16 +34,20 @@ class _markonmapState extends State<markonmap> {
       a = position.latitude;
       b = position.longitude;
     });
-    controller.move(LatLng(a, b), 17.0);
+    controller.move(LatLng(a, b), 15.0);
   }
 
-  void getting_address(LatLng from) async {
+  Future<String> getting_address(LatLng from) async {
     final from_coordinates = new Coordinates(from.latitude, from.longitude);
     List<Address> from_addresses =
         await Geocoder.local.findAddressesFromCoordinates(from_coordinates);
     Address from_first = from_addresses.first;
+
     print("${from_first.addressLine}");
-    addr += "${from_first.addressLine}";
+    setState(() {
+      addr += "${from_first.addressLine}";
+      return addr;
+    });
   }
 
   @override
@@ -47,6 +56,8 @@ class _markonmapState extends State<markonmap> {
     b = 80.110;
     super.initState();
     enable = widget.enable;
+    from = widget.from;
+    to = widget.to;
     getLocation();
   }
 
@@ -62,7 +73,6 @@ class _markonmapState extends State<markonmap> {
           body: FlutterMap(
               options: new MapOptions(
                   center: new LatLng(a, b),
-                  minZoom: 15.0,
                   onTap: (location) {
                     setState(() {
                       a = location.latitude;
@@ -73,11 +83,11 @@ class _markonmapState extends State<markonmap> {
               layers: [
                 new TileLayerOptions(
                     urlTemplate:
-                        "https://api.mapbox.com/styles/v1/prahadeesh1809/ck99qthgz0l2e1iob7n7ku075/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoicHJhaGFkZWVzaDE4MDkiLCJhIjoiY2s5OGJ0NmtsMDE0bjNmcDR3aHE0eWxpciJ9.vGw9cZtm_MN3xTGMTkH7RA",
+                        "https://api.mapbox.com/styles/v1/ammaamma/ck98c24q356631ip7xkk1vkq0/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg",
                     additionalOptions: {
                       'accessToken':
-                          'pk.eyJ1IjoicHJhaGFkZWVzaDE4MDkiLCJhIjoiY2s5OGJ0NmtsMDE0bjNmcDR3aHE0eWxpciJ9.vGw9cZtm_MN3xTGMTkH7RA',
-                      'id': 'mapbox.mapbox-streets-v8'
+                          'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg',
+                      'id': 'mapbox.terrain-rgb'
                     }),
                 MarkerLayerOptions(
                   markers: [
@@ -103,11 +113,18 @@ class _markonmapState extends State<markonmap> {
           right: 15.0,
           left: 15.0,
           child: RaisedButton(
-            onPressed: () {
-              getting_address(LatLng(a, b));
+            onPressed: () async {
+              await getting_address(LatLng(a, b));
+              print(addr);
+              if (to == 'to') {
+                to = addr;
+              } else if (from == 'from') {
+                from = addr;
+              }
               var route = new MaterialPageRoute(
-                  builder: (BuildContext context) => SearchPaage(enable, addr));
-              Navigator.of(context).pushReplacement(route);
+                  builder: (BuildContext context) =>
+                      SearchPaage(enable, from, to));
+              Navigator.of(context).push(route);
             },
             color: Colors.deepPurple,
             child: enable

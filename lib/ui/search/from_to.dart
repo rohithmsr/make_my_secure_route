@@ -15,11 +15,12 @@ import 'markonmap.dart';
 class SearchPaage extends StatelessWidget {
   final bool enable;
   final String addr;
-  SearchPaage(this.enable, this.addr);
+  final String toaddr;
+  SearchPaage(this.enable, this.addr, this.toaddr);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Soup(enable, addr),
+      home: Soup(enable, addr, toaddr),
     );
   }
 }
@@ -27,7 +28,8 @@ class SearchPaage extends StatelessWidget {
 class Soup extends StatelessWidget {
   final bool enable;
   final String addr;
-  Soup(this.enable, this.addr);
+  final String toaddr;
+  Soup(this.enable, this.addr, this.toaddr);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +39,7 @@ class Soup extends StatelessWidget {
       ),
       backgroundColor: Colors.white70,
       body: Container(
-        child: SearchPage(enable, addr),
+        child: SearchPage(enable, addr, toaddr),
       ),
     );
   }
@@ -46,7 +48,8 @@ class Soup extends StatelessWidget {
 class SearchPage extends StatefulWidget {
   final bool enable;
   final String addr;
-  SearchPage(this.enable, this.addr);
+  final String toaddr;
+  SearchPage(this.enable, this.addr, this.toaddr);
   @override
   _SearchPageState createState() => _SearchPageState();
 }
@@ -60,12 +63,15 @@ class _SearchPageState extends State<SearchPage> {
   double currentlat;
   double currentlng;
   String addr;
+  String toaddr;
 
   @override
   void initState() {
     enable = widget.enable;
     addr = widget.addr;
+    toaddr = widget.toaddr;
     _textController1.text += addr;
+    _textController2.text += toaddr;
     super.initState();
   }
 
@@ -75,7 +81,7 @@ class _SearchPageState extends State<SearchPage> {
       children: <Widget>[
         FlutterMap(
             options:
-                new MapOptions(center: new LatLng(13.00, 80.17), zoom: 15.0),
+                new MapOptions(center: new LatLng(13.08, 80.27), minZoom: 15.0),
             layers: [
               new TileLayerOptions(
                   urlTemplate:
@@ -83,7 +89,7 @@ class _SearchPageState extends State<SearchPage> {
                   additionalOptions: {
                     'accessToken':
                         'pk.eyJ1IjoiYW1tYWFtbWEiLCJhIjoiY2s5OGNxdmN2MDE5aDNlbjJkY2JhZmV6NyJ9.WY2_d6FZBxTHbibBaW9vAg',
-                    'id': 'mapbox.mapbox-streets-v7'
+                    'id': 'mapbox.terrain-rgb'
                   }),
             ]),
         Positioned(
@@ -133,12 +139,32 @@ class _SearchPageState extends State<SearchPage> {
                     ),
                   ),
                 );
+                _textController1.selection = TextSelection.collapsed(offset: 0);
               },
             ),
           ),
         ),
         Positioned(
-          top: 100,
+          top: 95.0,
+          right: 15.0,
+          left: 205.0,
+          child: RaisedButton(
+            onPressed: () {
+              var route = new MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      markonmap(enable, 'from', _textController2.text));
+              Navigator.of(context).push(route);
+            },
+            color: Colors.deepPurple,
+            child: enable
+                ? const Text('Choose on Map',
+                    style: TextStyle(fontSize: 15, color: Colors.white))
+                : const Text('வரைபடத்தில் இடங்களைத் தேர்வுசெய்',
+                    style: TextStyle(fontSize: 13, color: Colors.white)),
+          ),
+        ),
+        Positioned(
+          top: 130,
           right: 170,
           child: Padding(
             padding: EdgeInsets.all(14.0),
@@ -170,7 +196,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         Positioned(
-          top: 100,
+          top: 130,
           right: 130,
           child: Padding(
             padding: EdgeInsets.all(14.0),
@@ -187,6 +213,7 @@ class _SearchPageState extends State<SearchPage> {
                       if (_textController2.text == _textController1.text) {
                         _textController2.text = '';
                       }
+//                      _textController1.text = addr;
                     }, // button pressed
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +228,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         Positioned(
-          top: 165.0,
+          top: 195.0,
           right: 15.0,
           left: 15.0,
           child: Container(
@@ -247,12 +274,33 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                     ),
                   );
+                  _textController2.selection =
+                      TextSelection.collapsed(offset: 0);
                 },
               )),
         ),
         SizedBox(height: 30),
         Positioned(
-          top: 225.0,
+          top: 240.0,
+          right: 15.0,
+          left: 205.0,
+          child: RaisedButton(
+            onPressed: () {
+              var route = new MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      markonmap(enable, _textController1.text, 'to'));
+              Navigator.of(context).push(route);
+            },
+            color: Colors.deepPurple,
+            child: enable
+                ? const Text('Choose on Map',
+                    style: TextStyle(fontSize: 15, color: Colors.white))
+                : const Text('வரைபடத்தில் இடங்களைத் தேர்வுசெய்',
+                    style: TextStyle(fontSize: 13, color: Colors.white)),
+          ),
+        ),
+        Positioned(
+          top: 325.0,
           right: 15.0,
           left: 15.0,
           child: RaisedButton(
@@ -270,24 +318,6 @@ class _SearchPageState extends State<SearchPage> {
                 ? const Text('Find The Safest Route',
                     style: TextStyle(fontSize: 20, color: Colors.white))
                 : const Text('பாதுகாப்பான பாதையைக் கண்டறியவும்',
-                    style: TextStyle(fontSize: 13, color: Colors.white)),
-          ),
-        ),
-        Positioned(
-          top: 275.0,
-          right: 15.0,
-          left: 15.0,
-          child: RaisedButton(
-            onPressed: () {
-              var route = new MaterialPageRoute(
-                  builder: (BuildContext context) => markonmap(enable));
-              Navigator.of(context).push(route);
-            },
-            color: Colors.deepPurple,
-            child: enable
-                ? const Text('Mark Place on Map',
-                    style: TextStyle(fontSize: 20, color: Colors.white))
-                : const Text('வரைபடத்தில் இடம் குறிக்கவும்',
                     style: TextStyle(fontSize: 13, color: Colors.white)),
           ),
         ),

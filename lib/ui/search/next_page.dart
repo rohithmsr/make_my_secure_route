@@ -143,7 +143,7 @@ class _NextPageState extends State<NextPage> {
           icon: Icon(Icons.navigate_before),
           onPressed: () {
             var route = new MaterialPageRoute(
-                builder: (BuildContext context) => SearchPaage(enable, ''));
+                builder: (BuildContext context) => SearchPaage(enable, '', ''));
             Navigator.of(context).push(route);
           },
         ),
