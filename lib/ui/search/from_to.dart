@@ -72,6 +72,8 @@ class _SearchPageState extends State<SearchPage> {
     toaddr = widget.toaddr;
     _textController1.text += addr;
     _textController2.text += toaddr;
+    _textController1.selection = TextSelection.collapsed(offset: 0);
+    _textController2.selection = TextSelection.collapsed(offset: 0);
     super.initState();
   }
 
@@ -159,8 +161,8 @@ class _SearchPageState extends State<SearchPage> {
             child: enable
                 ? const Text('Choose on Map',
                     style: TextStyle(fontSize: 15, color: Colors.white))
-                : const Text('வரைபடத்தில் இடங்களைத் தேர்வுசெய்',
-                    style: TextStyle(fontSize: 13, color: Colors.white)),
+                : const Text('வரைபடத்தில் இடத்தைத் தேர்வுசெய்',
+                    style: TextStyle(fontSize: 8, color: Colors.white)),
           ),
         ),
         Positioned(
@@ -295,8 +297,8 @@ class _SearchPageState extends State<SearchPage> {
             child: enable
                 ? const Text('Choose on Map',
                     style: TextStyle(fontSize: 15, color: Colors.white))
-                : const Text('வரைபடத்தில் இடங்களைத் தேர்வுசெய்',
-                    style: TextStyle(fontSize: 13, color: Colors.white)),
+                : const Text('வரைபடத்தில் இடத்தைத் தேர்வுசெய்',
+                    style: TextStyle(fontSize: 8, color: Colors.white)),
           ),
         ),
         Positioned(

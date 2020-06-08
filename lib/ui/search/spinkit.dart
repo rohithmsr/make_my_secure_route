@@ -144,6 +144,29 @@ class _LoadingScreenState extends State<LoadingScreen> {
     );
   }
 
+  Future<void> ajyncConfirmDialog06(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button for close dialog!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: enable ? Text('Uh ho!') : Text('Uh ho!'),
+          content: enable
+              ? Text('No Routes Found')
+              : Text('பாதைகள் எதுவும் கிடைக்கவில்லை'),
+          actions: <Widget>[
+            FlatButton(
+              child: enable ? Text('OK') : Text('சரி'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> ajyncConfirmDialog1(BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -246,57 +269,62 @@ class _LoadingScreenState extends State<LoadingScreen> {
     double lng2 = end.longitude;
     String lang = enable ? 'en-gb' : 'ta';
 
-    Response response = await get(
-        "https://ceg-maps.herokuapp.com/getRoute?st_lat=$lat1&st_lng=$lng1&e_lat=$lat2&e_lng=$lng2&lang=$lang");
-    print(response.body);
-    var data = json.decode(response.body);
+    try {
+      Response response = await get(
+          "https://ceg-maps.herokuapp.com/getRoute?st_lat=$lat1&st_lng=$lng1&e_lat=$lat2&e_lng=$lng2&lang=$lang");
+      print(response.body);
+      var data = json.decode(response.body);
 
-    http = data['http'];
+      http = data['http'];
 
-    if (data['warning'] == 1) {
-      ajyncConfirmDialog1(context);
+      if (data['warning'] == 1) {
+        ajyncConfirmDialog1(context);
+        Navigator.pop(context);
+        return;
+      } else if (data['warning'] == 2) {
+        ajyncConfirmDialog2(context);
+        Navigator.pop(context);
+        return;
+      } else if (data['warning'] == 3) {
+        ajyncConfirmDialog3(context);
+        Navigator.pop(context);
+        return;
+      } else if (data['warning'] == 4) {
+        ajyncConfirmDialog2(context);
+        Navigator.pop(context);
+        return;
+      }
+
+      List<dynamic> coordinates1 = data['route'];
+      for (String i in coordinates1) {
+        var a = i.split(",");
+        double o = double.parse(a[0]);
+        double p = double.parse(a[1]);
+        route1.add(LatLng(o, p));
+      }
+
+      int duration = data['duration'];
+      int distance = data['distance'];
+
+      setState(() {});
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => NextPage(
+                  places[0],
+                  places[1],
+                  route1,
+                  allMarkers,
+                  LatLng(lat1, lng1),
+                  LatLng(lat2, lng2),
+                  enable,
+                  http,
+                  duration,
+                  distance)));
+    } catch (e) {
+      ajyncConfirmDialog06(context);
       Navigator.pop(context);
-      return;
-    } else if (data['warning'] == 2) {
-      ajyncConfirmDialog2(context);
-      Navigator.pop(context);
-      return;
-    } else if (data['warning'] == 3) {
-      ajyncConfirmDialog3(context);
-      Navigator.pop(context);
-      return;
-    } else if (data['warning'] == 4) {
-      ajyncConfirmDialog2(context);
-      Navigator.pop(context);
-      return;
     }
-
-    List<dynamic> coordinates1 = data['route'];
-    for (String i in coordinates1) {
-      var a = i.split(",");
-      double o = double.parse(a[0]);
-      double p = double.parse(a[1]);
-      route1.add(LatLng(o, p));
-    }
-
-    int duration = data['duration'];
-    int distance = data['distance'];
-
-    setState(() {});
-    Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => NextPage(
-                places[0],
-                places[1],
-                route1,
-                allMarkers,
-                LatLng(lat1, lng1),
-                LatLng(lat2, lng2),
-                enable,
-                http,
-                duration,
-                distance)));
   }
 
   @override

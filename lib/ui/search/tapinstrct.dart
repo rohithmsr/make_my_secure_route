@@ -38,7 +38,7 @@ class _mapiState extends State<mapi> {
   String to;
 
   double rot;
-  List<plygn.Point> polygon_points;
+  List<List<plygn.Point>> polygon_points;
   double currentlat;
   double currentlng;
 
@@ -51,6 +51,9 @@ class _mapiState extends State<mapi> {
   double current_arrow;
   int current_len;
   int current_time;
+  List current_poly;
+  List next_poly;
+  List prev_poly;
   int u;
 
   int totaltime = 6000;
@@ -117,12 +120,9 @@ class _mapiState extends State<mapi> {
   final Distance distance = new Distance();
   Map k;
 
-  void moooooove(double a, double b) {
-    mapController.move(LatLng(a, b), 18);
-  }
-
+  int poly_len, total_poly_len;
   List<List<double>> dedupBy<T, I>(List<T> list, I Function(T) compare,
-      {removeLast: true}) {
+      {removeLast: false}) {
     int shift = removeLast ? 1 : 0;
     List temp = list.sublist(0, list.length - 1);
 
@@ -135,50 +135,127 @@ class _mapiState extends State<mapi> {
     return temp;
   }
 
-  List<List<plygn.Point>> equation_finder(List<double> p1, List<double> p2) {
+  List<plygn.Point> equation_finder(List<double> p1, List<double> p2) {
+    double d = 0.00078;
+    double h = 0.0000039;
+
     double m = (p2[1] - p1[1]) / (p2[0] - p1[0]);
     double c = p1[1] - (m * p1[0]);
+    List<double> equ = [m, -1.0, c];
 
-    double d = 0.00009;
+    if (m != 0 && m != (1 / 0)) {
+      double f = sqrt((pow(d, 2)) / (1 + (1 / pow(m, 2))));
 
-    double f = sqrt((pow(d, 2)) / (1 + (1 / pow(m, 2))));
-    double x_p1_p = p1[0] + f;
-    double x_p1_m = p1[0] - f;
-    double y_p1_p = (-1 / m) * (x_p1_p) + ((p1[1] + (p1[0] / m)));
-    double y_p1_m = (-1 / m) * (x_p1_m) + ((p1[1] + (p1[0] / m)));
+      double x_p1_p = p1[0] + sqrt((pow(h, 2)) / (1 + (1 / pow(m, 2))));
+      double x_p1_m = p1[0] - sqrt((pow(h, 2)) / (1 + (1 / pow(m, 2))));
+      double y_p1_P = (m) * (x_p1_p) + c;
+      double y_p1_M = (m) * (x_p1_m) + c;
 
-    double x_p2_p = p2[0] + f;
-    double x_p2_m = p2[0] - f;
-    double y_p2_p = (-1 / m) * (x_p2_p) + ((p2[1] + (p2[0] / m)));
-    double y_p2_m = (-1 / m) * (x_p2_m) + ((p2[1] + (p2[0] / m)));
+      double x_p2_p = p2[0] + sqrt((pow(h, 2)) / (1 + (1 / pow(m, 2))));
+      double x_p2_m = p2[0] - sqrt((pow(h, 2)) / (1 + (1 / pow(m, 2))));
+      double y_p2_P = (m) * (x_p2_p) + c;
+      double y_p2_M = (m) * (x_p2_m) + c;
 
-    return [
-      [plygn.Point(x_p1_m, y_p1_m), plygn.Point(x_p2_m, y_p2_m)],
-      [plygn.Point(x_p1_p, y_p1_p), plygn.Point(x_p2_p, y_p2_p)]
-    ];
+      double dis_1 =
+          sqrt((pow((x_p2_m - x_p1_p), 2)) + (pow((y_p2_M - y_p1_P), 2)));
+      double dis_2 =
+          sqrt((pow((x_p1_m - x_p2_p), 2)) + (pow((y_p1_M - y_p2_P), 2)));
+
+      double Pnt_x_1;
+      double Pnt_y_1;
+      double Pnt_x_2;
+      double Pnt_y_2;
+
+      if (dis_1 > dis_2) {
+        Pnt_x_1 = x_p2_p;
+        Pnt_y_1 = y_p2_P;
+        Pnt_x_2 = x_p1_m;
+        Pnt_y_2 = y_p1_M;
+      } else {
+        Pnt_x_1 = x_p2_p;
+        Pnt_y_1 = y_p2_P;
+        Pnt_x_2 = x_p1_m;
+        Pnt_y_2 = y_p1_M;
+      }
+
+      double x_pnt2_p = Pnt_x_1 + f;
+      double x_pnt2_m = Pnt_x_1 - f;
+      double y_pnt2_p = (-1 / m) * (x_pnt2_p) + ((Pnt_y_1 + (Pnt_x_1 / m)));
+      double y_pnt2_m = (-1 / m) * (x_pnt2_m) + ((Pnt_y_1 + (Pnt_x_1 / m)));
+
+      double x_pnt1_p = Pnt_x_2 + f;
+      double x_pnt1_m = Pnt_x_2 - f;
+      double y_pnt1_p = (-1 / m) * (x_pnt1_p) + ((Pnt_y_2 + (Pnt_x_2 / m)));
+      double y_pnt1_m = (-1 / m) * (x_pnt1_m) + ((Pnt_y_2 + (Pnt_x_2 / m)));
+
+      return [
+        plygn.Point(x_pnt2_m, y_pnt2_m),
+        plygn.Point(x_pnt1_m, y_pnt1_m),
+        plygn.Point(x_pnt1_p, y_pnt1_p),
+        plygn.Point(x_pnt2_p, y_pnt2_p)
+      ];
+    } else if (m == 0) {
+      double dis_1 = sqrt(
+          (pow(((p2[0] - h) - (p1[0] + h)), 2)) + (pow((p2[1] - p1[1]), 2)));
+      double dis_2 = sqrt(
+          (pow(((p1[0] - h) - (p2[0] + h)), 2)) + (pow((p1[1] - p2[1]), 2)));
+
+      List p1_wh;
+      List p2_wh;
+
+      if (dis_1 > dis_2) {
+        p1_wh = [p1[0] + h, p1[1]];
+        p2_wh = [p2[0] - h, p1[1]];
+      } else {
+        p1_wh = [p1[0] - h, p1[1]];
+        p2_wh = [p2[0] + h, p1[1]];
+      }
+
+      return [
+        plygn.Point(p1_wh[0], p1_wh[1] + d),
+        plygn.Point(p2_wh[0], p2_wh[1] + d),
+        plygn.Point(p1_wh[0], p1_wh[1] - d),
+        plygn.Point(p2_wh[0], p2_wh[1] - d)
+      ];
+    } else if (m == (1 / 0)) {
+      double dis_1 = sqrt(
+          (pow(((p1[0]) - (p2[0])), 2)) + (pow((p1[1] + h - p2[1] - h), 2)));
+      double dis_2 = sqrt(
+          (pow(((p2[0]) - (p1[0])), 2)) + (pow((p2[1] + h - p1[1] - h), 2)));
+
+      List p1_wh;
+      List p2_wh;
+
+      if (dis_1 > dis_2) {
+        p1_wh = [p1[0], p1[1] + h];
+        p2_wh = [p2[0], p2[1] - h];
+      } else {
+        p1_wh = [p1[0], p2[1] + h];
+        p2_wh = [p2[0], p1[1] - h];
+      }
+
+      return [
+        plygn.Point(p1_wh[0] - d, p1_wh[1]),
+        plygn.Point(p2_wh[0] - d, p2_wh[1]),
+        plygn.Point(p1_wh[0] + d, p1_wh[1]),
+        plygn.Point(p2_wh[0] + d, p2_wh[1])
+      ];
+    }
   }
 
-  List<plygn.Point> polygon_creater(List<List<double>> list_o) {
-    List<plygn.Point> list_with_m = [];
-    List<plygn.Point> list_with_p = [];
+  List<List<plygn.Point>> polygon_creater(List<List<double>> list_o) {
+    List<List<Point<num>>> result = [];
+
     List temp_r =
         dedupBy(list_o, (innerList) => innerList[0], removeLast: false);
 
     int order = 0;
     while (order < temp_r.length - 1) {
       List temp_i = equation_finder(temp_r[order], temp_r[order + 1]);
-      list_with_m.add(temp_i[0][0]);
-      list_with_m.add(temp_i[0][1]);
-      list_with_p.add(temp_i[1][0]);
-      list_with_p.add(temp_i[1][1]);
+      print('$order , ${order + 1}');
+      result.add(temp_i);
       order++;
     }
-
-    List<plygn.Point> result = [];
-
-    result.addAll(list_with_m);
-    result.addAll(list_with_p.reversed);
-    result.add(list_with_m[0]);
     return result;
   }
 
@@ -214,6 +291,9 @@ class _mapiState extends State<mapi> {
       }
 
       polygon_points = polygon_creater(awq);
+
+      poly_len = polygon_points.length;
+      total_poly_len = polygon_points.length;
     } catch (e) {
       print(e);
     }
@@ -231,8 +311,6 @@ class _mapiState extends State<mapi> {
     totallength = widget.distance;
 
     rot = 0;
-
-    super.initState();
 
     location.getLocation().then((v) {
       currentlat = v.latitude;
@@ -259,6 +337,14 @@ class _mapiState extends State<mapi> {
         u -= 1;
       });
       instructions.removeAt(0);
+
+      setState(() {
+        if (poly_len >= 0) {
+          current_poly = polygon_points[total_poly_len - poly_len];
+        }
+        poly_len -= 1;
+      });
+//      polygon_points.removeAt(0);
     });
 
     List<bool> offroute_tracker = [];
@@ -293,7 +379,7 @@ class _mapiState extends State<mapi> {
       }
 
       //2.offruting
-      if (plygn.Polygon(polygon_points).isPointInside(plygn.Point(
+      if (plygn.Polygon(current_poly).isPointInside(plygn.Point(
               currentLocation.latitude, currentLocation.longitude)) ==
           false) {
         if (distance.as(
@@ -302,12 +388,36 @@ class _mapiState extends State<mapi> {
                 source) <=
             60) {
           offroute_tracker.add(true);
+        } else if (distance.as(
+                LengthUnit.Meter,
+                LatLng(currentLocation.latitude, currentLocation.longitude),
+                dest) <=
+            60) {
+          offroute_tracker.add(true);
+        } else if (poly_len == 0) {
+          if (plygn.Polygon(polygon_points[total_poly_len - poly_len - 1])
+                  .isPointInsideT(plygn.Point(currentlat, currentlng), 40.0) ==
+              true) {
+            offroute_tracker.add(true);
+          }
+        } else if (total_poly_len >= poly_len && poly_len != 1) {
+          if (plygn.Polygon(polygon_points[total_poly_len - poly_len])
+                  .isPointInsideT(plygn.Point(currentlat, currentlng), 40.0) ==
+              true) {
+            offroute_tracker.add(true);
+            setState(() {
+              if (poly_len > 0) {
+                current_poly = polygon_points[total_poly_len - poly_len];
+              }
+              poly_len -= 1;
+            });
+          }
         } else {
           offroute_tracker.add(false);
         }
       }
 
-      if (offroute_tracker.length > 15) {
+      if (offroute_tracker.length > 12) {
         offroute_tracker.removeAt(0);
       }
 
@@ -316,7 +426,14 @@ class _mapiState extends State<mapi> {
             offroute_tracker[1] == false &&
             offroute_tracker[2] == false &&
             offroute_tracker[3] == false &&
-            offroute_tracker[4] == false) {
+            offroute_tracker[4] == false &&
+            offroute_tracker[5] == false &&
+            offroute_tracker[6] == false &&
+            offroute_tracker[7] == false &&
+            offroute_tracker[8] == false &&
+            offroute_tracker[9] == false &&
+            offroute_tracker[10] == false &&
+            offroute_tracker[11] == false) {
           var route = new MaterialPageRoute(
               builder: (BuildContext context) =>
                   LoadingScreen('Your Location', to, enable, repeat));
@@ -329,6 +446,8 @@ class _mapiState extends State<mapi> {
         currentlng = currentLocation.longitude;
       });
     });
+
+    super.initState();
   }
 
   @override

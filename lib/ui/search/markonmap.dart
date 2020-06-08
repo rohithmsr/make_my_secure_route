@@ -54,11 +54,11 @@ class _markonmapState extends State<markonmap> {
   void initState() {
     a = 13.08;
     b = 80.110;
-    super.initState();
+    getLocation();
     enable = widget.enable;
     from = widget.from;
     to = widget.to;
-    getLocation();
+    super.initState();
   }
 
   @override

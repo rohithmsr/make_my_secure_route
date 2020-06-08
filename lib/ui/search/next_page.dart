@@ -251,3 +251,97 @@ class _NextPageState extends State<NextPage> {
     );
   }
 }
+
+/*
+List<bool> offroute_tracker = [];
+    location.onLocationChanged.listen((LocationData currentLocation) {
+      //1.instructins
+      if (distance.as(
+              LengthUnit.Meter,
+              LatLng(currentLocation.latitude, currentLocation.longitude),
+              instructions[0][3]) <=
+          65) {
+        setState(() {
+          if (u >= 0) {
+            current_arrow = instructions[(instructions.length - 1) - u][5];
+            current_instruction =
+                instructions[(instructions.length - 1) - u][4];
+            current_len = instructions[(instructions.length - 1) - u][2];
+            current_time = instructions[(instructions.length - 1) - u][1];
+            minustime += instructions[(instructions.length) - u][1];
+            minuslength += instructions[(instructions.length) - u][2];
+            time = (totaltime - minustime) ~/ 60;
+            if ((totaltime - minustime) ~/ 3600 != 0) {
+              strtime = enable
+                  ? '${(totaltime - minustime) ~/ 3600} hr ${(totaltime - minustime) % 3600 ~/ 60} min'
+                  : '${(totaltime - minustime) ~/ 3600} மணி ${(totaltime - minustime) % 3600 ~/ 60} நிமி';
+            } else {
+              strtime = enable ? '${time} min' : '${time} நிமி';
+            }
+          }
+          u -= 1;
+        });
+        instructions.removeAt(0);
+      }
+
+      //2.offruting
+      if (plygn.Polygon(polygon_points).isPointInside(plygn.Point(
+              currentLocation.latitude, currentLocation.longitude)) ==
+          false) {
+        if (plygn.Polygon(polygon_points)
+                .isPointInsideT(plygn.Point(currentlat, currentlng), 30.0) ==
+            true) {
+          offroute_tracker.add(true);
+        } else if (distance.as(
+                LengthUnit.Meter,
+                LatLng(currentLocation.latitude, currentLocation.longitude),
+                source) <=
+            60) {
+          offroute_tracker.add(true);
+        } else if (distance.as(
+                LengthUnit.Meter,
+                LatLng(currentLocation.latitude, currentLocation.longitude),
+                dest) <=
+            60) {
+          offroute_tracker.add(true);
+        } else {
+          offroute_tracker.add(false);
+        }
+      }
+
+      if (offroute_tracker.length > 18) {
+        offroute_tracker.removeAt(0);
+      }
+
+      try {
+        if (offroute_tracker[0] == false &&
+            offroute_tracker[1] == false &&
+            offroute_tracker[2] == false &&
+            offroute_tracker[3] == false &&
+            offroute_tracker[4] == false &&
+            offroute_tracker[5] == false &&
+            offroute_tracker[6] == false &&
+            offroute_tracker[7] == false &&
+            offroute_tracker[8] == false &&
+            offroute_tracker[9] == false &&
+            offroute_tracker[10] == false &&
+            offroute_tracker[11] == false &&
+            offroute_tracker[12] == false &&
+            offroute_tracker[13] == false &&
+            offroute_tracker[14] == false &&
+            offroute_tracker[15] == false &&
+            offroute_tracker[16] == false &&
+            offroute_tracker[17] == false) {
+          var route = new MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  LoadingScreen('Your Location', to, enable, repeat));
+          Navigator.of(context).pushReplacement(route);
+        }
+      } catch (e) {}
+
+      setState(() {
+        currentlat = currentLocation.latitude;
+        currentlng = currentLocation.longitude;
+      });
+    });
+ */
