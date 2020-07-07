@@ -1,16 +1,15 @@
-# mapsuiprojectprac
+# Make My Secure Route
 
-A new Flutter application.
+This app, created during the lockdown period due to COVID-19 pandemic, provides the safest as well as the optimised route between the source and the 
+destination in Chennai district, TamilNadu. The reason for me to make this app so that once the lockdown is lifted and offices begin to work, 
+the commuters can travel with safety and confidence.
 
-## Getting Started
+## Tech-Stack
 
-This project is a starting point for a Flutter application.
+1. The safest n optimised route is fetched using Here Maps Routing API
+2. The data of the containment zones is obtained from the [official website of the Greater Chennai Corporation](https://covid.gccservice.in/containmentzones)
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Some Other Features
+1. Alerts the user if he is about to travel to a place which is not safe or when there is no safest route possible.
+2. English and Tamil Languages to search for a particular place
+3. Has some lite route navigation features.
